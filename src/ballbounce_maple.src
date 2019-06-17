@@ -1,0 +1,59 @@
+with(plots);
+ballbounce_traj := proc(t,p,y0,vx0,g,maxbounce)
+	local llimit, rlimit, jj;
+	llimit := 0;
+	rlimit := sqrt(2*y0/(-g));
+	if (evalf(t) < evalf(rlimit)) then
+		y0 + (g/2)*t^2
+	else
+		jj := 1;
+		while (evalf(t) >= evalf(rlimit)) do
+			llimit := rlimit;
+			rlimit := rlimit + (2/(-g)) * sqrt(p^jj * 2 * y0 * (-g));
+			jj := jj + 1;
+			if (jj > maxbounce + 1) or (rlimit - llimit < 0.01) then
+				0
+			end if;
+		od;
+		jj := jj - 1;
+		
+		sqrt(p^jj * 2 * y0 * (-g)) * (t - llimit) + (g/2) * (t - llimit)^2
+	end if;
+end proc;
+ballbounce_traj_color := proc(t,p,y0,g,maxbounce)
+	local llimit, rlimit, jj;
+	llimit := 0;
+	rlimit := sqrt(2*y0/(-g));
+	if (evalf(t) < evalf(rlimit)) then
+		green
+	else
+		jj := 1;
+		while (evalf(t) >= evalf(rlimit)) do
+			llimit := rlimit;
+			rlimit := rlimit + (2/(-g)) * sqrt(p^jj * 2 * y0 * (-g));
+			jj := jj + 1;
+			if (jj > maxbounce + 1) or (rlimit - llimit < 0.01) then
+				black
+			end if;
+		od;
+		jj := jj - 1;
+		
+		if (jj = 1) then
+			blue
+		elif (jj = 2) then
+			red
+		else
+			black
+		end if;
+	end if;
+end proc;
+ballbounce_disp_mono := proc(p, y0, vx0, g, maxbounce, maxtime)
+animate(implicitplot,[(x-vx0*t/100)^2+(y-0.5-'ballbounce_traj'(t/100, p, y0, vx0, g, maxbounce))^2=1,x=-1..vx0*maxtime,y=-1..y0+1,scaling=constrained, color=red],t=1..100*maxtime,frames = 100);
+end proc;
+ballbounce_disp_color := proc(p, y0, vx0, g, maxbounce, maxtime)
+animate(implicitplot,[(x-vx0*t/100)^2+(y-0.5-'ballbounce_traj'(t/100, p, y0, vx0, g, maxbounce))^2=1,x=-1..vx0*maxtime,y=-1..y0+1,scaling=constrained, color='ballbounce_traj_color'(t/100, p, y0, g, maxbounce)],t=1..100*maxtime,frames=100);
+end proc;
+ballbounce_disp_mono(0.66, 10, 2, -10, 5, 10);
+
+ballbounce_disp_color(0.66, 10, 2, -10, 5, 10); 
+
